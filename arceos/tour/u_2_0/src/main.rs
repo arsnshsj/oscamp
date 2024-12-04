@@ -7,7 +7,7 @@ extern crate axstd as std;
 extern crate alloc;
 
 use alloc::string::String;
-
+use axstd::println;
 #[cfg_attr(feature = "axstd", no_mangle)]
 fn main() {
     let s = String::from("Hello, axalloc!");

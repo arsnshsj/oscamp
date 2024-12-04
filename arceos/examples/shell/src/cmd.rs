@@ -1,5 +1,6 @@
 use std::fs::{self, File, FileType};
 use std::io::{self, prelude::*};
+use std::string::ToString;
 use std::{string::String, vec::Vec};
 
 #[cfg(all(not(feature = "axstd"), unix))]
@@ -27,6 +28,8 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
     ("pwd", do_pwd),
     ("rm", do_rm),
     ("uname", do_uname),
+    ("rename", do_rename),
+    ("mv", do_mv),
 ];
 
 fn file_type_to_char(ty: FileType) -> char {
@@ -64,6 +67,32 @@ const fn file_perm_to_rwx(mode: u32) -> [u8; 9] {
     set!(5, b'r'); set!(4, b'w'); set!(3, b'x');
     set!(8, b'r'); set!(7, b'w'); set!(6, b'x');
     perm
+}
+
+fn do_rename(args: &str) {
+    if args.is_empty() {
+        print_err!("mkdir", "missing operand");
+        return;
+    }
+    let (old, new) = split_whitespace(args);
+    fs::rename(old, new);
+}
+
+fn do_mv(args: &str) {
+    if args.is_empty() {
+        print_err!("mkdir", "missing operand");
+        return;
+    }
+    let (old, new) = split_whitespace(args);
+    let is_dir = fs::metadata(old).expect("REASON").is_dir();
+    if is_dir == true {
+        println!("dir!");
+        //  递归
+    }else {
+        let new_name = new[2..].to_string() + "/" + old.clone();
+        fs::rename(old,new_name.as_str());
+    }
+
 }
 
 fn do_ls(args: &str) {
